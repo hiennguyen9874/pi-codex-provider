@@ -5,22 +5,17 @@ import {
 	writeCodexConversionConfig,
 	type CodexConversionConfig,
 } from "../../adapter/activation/config.ts";
-import { syncAdapter } from "../../adapter/activation/activation.ts";
 import type { AdapterState } from "../../adapter/activation/state.ts";
 import { openCodexSettingsScreen } from "./ui.ts";
 import { consumeCodexRateLimitResetCredit, fetchCodexUsage, formatCodexUsage } from "./usage.ts";
-import type { BackgroundBashWidgetState } from "../background-bash-widget.ts";
-import { renderBackgroundBashWidget } from "../background-bash-widget.ts";
-import type { ExecSessionManager } from "../../tools/exec/session-manager.ts";
 
-const CODEX_COMMAND_COMPLETIONS = ["all", "status", "fast", "compact", "usage", "reset", "ps", "low", "medium", "high"] as const;
-const CODEX_USAGE = "Usage: /codex, /codex all, /codex status, /codex fast, /codex compact, /codex usage, /codex reset, /codex ps, /codex low|medium|high";
+const CODEX_COMMAND_COMPLETIONS = ["all", "status", "fast", "compact", "usage", "reset", "low", "medium", "high"] as const;
+const CODEX_USAGE = "Usage: /codex, /codex all, /codex status, /codex fast, /codex compact, /codex usage, /codex reset, /codex low|medium|high";
 
 export function registerCodexCommand(
 	pi: ExtensionAPI,
 	state: AdapterState,
 	onConfigApplied?: (config: CodexConversionConfig) => void,
-	backgroundShells?: { sessions: ExecSessionManager; widget: BackgroundBashWidgetState } | undefined,
 ): void {
 	function saveAndApply(ctx: ExtensionContext, nextConfig: CodexConversionConfig): boolean {
 		const writeResult = writeCodexConversionConfig(nextConfig);
@@ -30,7 +25,6 @@ export function registerCodexCommand(
 		}
 		state.config = nextConfig;
 		onConfigApplied?.(nextConfig);
-		syncAdapter(pi, ctx, state);
 		return true;
 	}
 
@@ -41,20 +35,6 @@ export function registerCodexCommand(
 		handler: async (args, ctx) => {
 			state.config = readCodexConversionConfig();
 			const arg = args.trim().toLowerCase();
-			if (arg === "ps") {
-				if (!state.config.ui.backgroundShellWidget) {
-					ctx.ui.notify("Background shells widget is off.", "info");
-					return;
-				}
-				if (!backgroundShells || backgroundShells.sessions.listSessions().length === 0) {
-					ctx.ui.notify("No background shells running.", "info");
-					return;
-				}
-				backgroundShells.widget.ctx = ctx;
-				backgroundShells.widget.folded = false;
-				renderBackgroundBashWidget(ctx, backgroundShells.widget, backgroundShells.sessions);
-				return;
-			}
 			if (arg === "usage" || arg === "reset") {
 				let usage;
 				try {
@@ -131,5 +111,5 @@ function getCommandConfigUpdate(arg: string, config: CodexConversionConfig): Cod
 }
 
 function formatCodexSettings(config: CodexConversionConfig): string {
-	return `Codex settings: all models ${config.scope.allProviders ? "on" : "off"}, additional providers ${config.scope.additionalProviders.length > 0 ? config.scope.additionalProviders.join(", ") : "none"}, statusline ${config.ui.statusLine ? "on" : "off"}, tool rendering ${config.ui.toolRendering ? "on" : "off"}, background shells widget ${config.ui.backgroundShellWidget ? "on" : "off"}, fast ${config.openai.fast ? "on" : "off"}, cached websocket upgrade ${config.openai.forceCachedWebSockets === false ? "off" : "on"}, responses compaction ${(config.compaction.responsesCompaction ?? false) ? "on" : "off"} (${config.openai.compactionModel}/${config.openai.compactionReasoning}), verbosity ${config.openai.verbosity}`;
+	return `Codex settings: all models ${config.scope.allProviders ? "on" : "off"}, additional providers ${config.scope.additionalProviders.length > 0 ? config.scope.additionalProviders.join(", ") : "none"}, statusline ${config.ui.statusLine ? "on" : "off"}, tool rendering ${config.ui.toolRendering ? "on" : "off"}, fast ${config.openai.fast ? "on" : "off"}, cached websocket upgrade ${config.openai.forceCachedWebSockets === false ? "off" : "on"}, responses compaction ${(config.compaction.responsesCompaction ?? false) ? "on" : "off"} (${config.openai.compactionModel}/${config.openai.compactionReasoning}), verbosity ${config.openai.verbosity}`;
 }

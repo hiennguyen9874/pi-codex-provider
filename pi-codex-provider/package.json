@@ -1,14 +1,14 @@
 {
-  "name": "@howaboua/pi-codex-conversion",
-  "version": "2.1.0",
-  "description": "Codex-oriented tool and prompt adapter for pi coding agent",
+  "name": "@howaboua/pi-codex-provider",
+  "version": "0.1.0",
+  "description": "OpenAI Codex provider, Responses streaming, replay & compaction adapter for pi coding agent",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/IgorWarzocha/howaboua-pi-stuff.git",
-    "directory": "packages/pi-codex-conversion"
+    "directory": "packages/pi-codex-provider"
   },
-  "homepage": "https://github.com/IgorWarzocha/howaboua-pi-stuff/tree/main/packages/pi-codex-conversion#readme",
+  "homepage": "https://github.com/IgorWarzocha/howaboua-pi-stuff/tree/main/packages/pi-codex-provider#readme",
   "bugs": {
     "url": "https://github.com/IgorWarzocha/howaboua-pi-stuff/issues"
   },
@@ -18,8 +18,11 @@
     "pi-coding-agent",
     "extension",
     "codex",
-    "adapter",
-    "apply-patch"
+    "openai-codex",
+    "responses",
+    "provider",
+    "streaming",
+    "compaction"
   ],
   "license": "MIT",
   "pi": {
@@ -30,25 +33,9 @@
   "files": [
     "src/**/*.ts",
     "src/**/*.md",
-    "bin/apply_patch",
-    "bin/apply_patch.cmd",
-    "bin/view_image.cmd",
-    "bin/web_run.cmd",
-    "bin/imagegen.cmd",
-    "available-tools.png",
     "CHANGELOG.md",
-    "PATH_TOOLS.md",
     "README.md",
-    "LICENSE",
-    "bin/view_image",
-    "bin/web_run",
-    "bin/imagegen",
-    "src/tools/**/bin/**",
-    "src/tools/**/*.rs",
-    "src/tools/**/Cargo.toml",
-    "src/tools/Cargo.lock",
-    "src/tools/rust/UPSTREAM.*",
-    "!src/tools/target/**"
+    "LICENSE"
   ],
   "scripts": {
     "typecheck": "tsgo -p tsconfig.json",
@@ -57,13 +44,7 @@
     "publish:dry-run": "npm publish --dry-run",
     "publish:dev": "npm publish --tag dev",
     "release:dev": "npm version prerelease --preid dev && npm publish --tag dev",
-    "prepack": "bun run check",
-    "prepublishOnly": "bun run verify:codex-tool-binaries",
-    "build:apply-patch": "node scripts/build-apply-patch-binary.mjs",
-    "sync:apply-patch-source": "node scripts/sync-apply-patch-source.mjs",
-    "verify:codex-tool-binaries": "node scripts/verify-codex-tool-binaries.mjs",
-    "build:changed-path-tools": "node scripts/build-changed-path-tool-binaries.mjs",
-    "build:path-tool": "node scripts/build-path-tool-binary.mjs"
+    "prepack": "bun run check"
   },
   "publishConfig": {
     "access": "public"
@@ -85,14 +66,6 @@
   },
   "dependencies": {
     "partial-json": "^0.1.7",
-    "proxy-from-env": "1.1.0",
-    "tree-sitter-bash": "^0.25.1",
-    "web-tree-sitter": "^0.26.7"
-  },
-  "bin": {
-    "apply_patch": "./bin/apply_patch",
-    "view_image": "./bin/view_image",
-    "web_run": "./bin/web_run",
-    "imagegen": "./bin/imagegen"
+    "proxy-from-env": "1.1.0"
   }
 }

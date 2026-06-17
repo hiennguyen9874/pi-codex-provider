@@ -1,6 +1,11 @@
-import type { PromptSkill } from "../../prompt/build-system-prompt.ts";
 import type { CodexConversionConfig } from "./config.ts";
 import type { ResponsesInputItem } from "../compaction/serializer.ts";
+
+export interface PromptSkill {
+	name: string;
+	description: string;
+	filePath: string;
+}
 
 export interface PendingPiCompactionNativeWindow {
 	window: ResponsesInputItem[];
