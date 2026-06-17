@@ -1,16 +1,15 @@
 {
-  "name": "@howaboua/pi-codex-provider",
+  "name": "@hiennguyen9874/pi-codex-provider",
   "version": "0.1.0",
   "description": "OpenAI Codex provider, Responses streaming, replay & compaction adapter for pi coding agent",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IgorWarzocha/howaboua-pi-stuff.git",
-    "directory": "packages/pi-codex-provider"
+    "url": "git+https://github.com/hiennguyen9874/pi-codex-provider.git"
   },
-  "homepage": "https://github.com/IgorWarzocha/howaboua-pi-stuff/tree/main/packages/pi-codex-provider#readme",
+  "homepage": "https://github.com/hiennguyen9874/pi-codex-provider#readme",
   "bugs": {
-    "url": "https://github.com/IgorWarzocha/howaboua-pi-stuff/issues"
+    "url": "https://github.com/hiennguyen9874/pi-codex-provider/issues"
   },
   "keywords": [
     "pi-package",
