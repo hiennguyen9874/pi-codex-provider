@@ -148,3 +148,9 @@ src/tools/target/
 
 .pi/
 pi-codex-conversion/
+# pi-codex-provider
+.pi/semantic-grep.sqlite
+.pi/semantic-grep.sqlite-*
+.pi/openai-codex-images/
+.pi/semantic-grep.sync-conflict-*.sqlite
+package-lock.json
