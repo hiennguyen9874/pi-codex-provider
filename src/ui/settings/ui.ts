@@ -4,12 +4,10 @@ import {
 	COMPACTION_MODELS,
 	COMPACTION_REASONING_LEVELS,
 	DEFAULT_CODEX_CONVERSION_CONFIG,
-	WEB_SEARCH_MODELS,
 	normalizeCodexVerbosity,
 	normalizeCompactionModel,
 	normalizeCompactionReasoning,
 	normalizeProviderList,
-	normalizeWebSearchModel,
 	readCodexConversionConfig,
 	type CodexConversionConfig,
 } from "../../adapter/activation/config.ts";
@@ -26,9 +24,9 @@ export interface CodexSettingsScreenOptions {
 	onConsumeResetCredit?: (redeemRequestId: string) => Promise<CodexRateLimitResetConsumeResult>;
 }
 
-type SettingsTab = "general" | "tools" | "openai" | "usage" | "about";
+type SettingsTab = "general" | "openai" | "usage" | "about";
 
-const TAB_ORDER: readonly SettingsTab[] = ["general", "tools", "openai", "usage", "about"];
+const TAB_ORDER: readonly SettingsTab[] = ["general", "openai", "usage", "about"];
 
 class TextSettingSubmenu extends Container implements Focusable {
 	private input: Input;
@@ -217,30 +215,17 @@ function createSettingsList(
 function buildItems(tab: SettingsTab, draft: CodexConversionConfig, theme: Theme): SettingItem[] {
 	if (tab === "usage" || tab === "about") return [];
 
-	if (tab === "tools") {
-		return [
-			{ id: "shellCommands", label: "Shell commands", currentValue: "required", values: ["required"] },
-			{ id: "applyPatch", label: "Apply patch", currentValue: "required", values: ["required"] },
-			{ id: "viewImage", label: "View image", currentValue: "required", values: ["required"] },
-			{ id: "webRun", label: "Web search", currentValue: draft.tools.webRun ? "on" : "off", values: ["off", "on"] },
-			{ id: "imageGeneration", label: "Image generation", currentValue: draft.tools.imageGeneration ? "on" : "off", values: ["off", "on"] },
-			{ id: "applyPatchOnly", label: "Only add apply_patch", currentValue: draft.tools.applyPatchOnly ? "on" : "off", values: ["off", "on"] },
-		];
-	}
-
 	if (tab === "openai") {
 		return [
 			{ id: "fast", label: "Fast mode", currentValue: draft.openai.fast ? "on" : "off", values: ["off", "on"] },
 			{ id: "verbosity", label: "Verbosity", currentValue: draft.openai.verbosity, values: ["low", "medium", "high"] },
 			{ id: "forceCachedWebSockets", label: "Cached websocket upgrade", currentValue: draft.openai.forceCachedWebSockets ? "on" : "off", values: ["off", "on"] },
-			{ id: "webSearchModel", label: "Web search model", currentValue: draft.openai.webSearchModel, values: [...WEB_SEARCH_MODELS] },
 			{ id: "compactionModel", label: "Compaction model", currentValue: draft.openai.compactionModel, values: [...COMPACTION_MODELS] },
 			{ id: "compactionReasoning", label: "Compaction reasoning", currentValue: draft.openai.compactionReasoning, values: [...COMPACTION_REASONING_LEVELS] },
 		];
 	}
 
 	return [
-		{ id: "mode", label: "PATH mode", currentValue: draft.mode === "path" ? "on" : "off", values: ["off", "on"] },
 		{ id: "allProviders", label: "Use for all providers/models", currentValue: draft.scope.allProviders ? "on" : "off", values: ["off", "on"] },
 		{
 			id: "additionalProviders",
@@ -249,27 +234,18 @@ function buildItems(tab: SettingsTab, draft: CodexConversionConfig, theme: Theme
 			submenu: (currentValue, done) => new TextSettingSubmenu("Additional providers", "Comma-separated provider ids that should also use the selected adapter mode.", currentValue, (value) => done(formatProviderList(normalizeProviderListFromText(value))), () => done(), theme),
 		},
 		{ id: "statusLine", label: "Statusline", currentValue: draft.ui.statusLine ? "on" : "off", values: ["off", "on"] },
-		{ id: "toolRendering", label: "Tool rendering", currentValue: draft.ui.toolRendering ? "on" : "off", values: ["off", "on"] },
-		{ id: "backgroundShellWidget", label: "Background shells widget", currentValue: draft.ui.backgroundShellWidget ? "on" : "off", values: ["off", "on"] },
 		{ id: "responsesCompaction", label: "Responses compaction", currentValue: draft.compaction.responsesCompaction ? "on" : "off", values: ["off", "on"] },
 		{ id: "editConfig", label: "Edit config", currentValue: editorCommand() ? "Opens in default editor (please /reload)" : "Set $EDITOR", values: editorCommand() ? ["Open"] : ["Unavailable"] },
 	];
 }
 
 function applySettingChange(id: string, value: string, draft: CodexConversionConfig): CodexConversionConfig {
-	if (id === "mode") return { ...draft, mode: value === "on" ? "path" : "normal" };
 	if (id === "allProviders") return { ...draft, scope: { ...draft.scope, allProviders: value === "on" } };
 	if (id === "additionalProviders") return { ...draft, scope: { ...draft.scope, additionalProviders: normalizeProviderListFromText(value) } };
 	if (id === "statusLine") return { ...draft, ui: { ...draft.ui, statusLine: value === "on" } };
-	if (id === "toolRendering") return { ...draft, ui: { ...draft.ui, toolRendering: value === "on" } };
-	if (id === "backgroundShellWidget") return { ...draft, ui: { ...draft.ui, backgroundShellWidget: value === "on" } };
 	if (id === "responsesCompaction") return { ...draft, compaction: { ...draft.compaction, responsesCompaction: value === "on" } };
-	if (id === "webRun") return { ...draft, tools: { ...draft.tools, webRun: value === "on" } };
-	if (id === "imageGeneration") return { ...draft, tools: { ...draft.tools, imageGeneration: value === "on" } };
-	if (id === "applyPatchOnly") return { ...draft, tools: { ...draft.tools, applyPatchOnly: value === "on" } };
 	if (id === "fast") return { ...draft, openai: { ...draft.openai, fast: value === "on" } };
 	if (id === "forceCachedWebSockets") return { ...draft, openai: { ...draft.openai, forceCachedWebSockets: value === "on" } };
-	if (id === "webSearchModel") return { ...draft, openai: { ...draft.openai, webSearchModel: normalizeWebSearchModel(value) ?? DEFAULT_CODEX_CONVERSION_CONFIG.openai.webSearchModel } };
 	if (id === "compactionModel") return { ...draft, openai: { ...draft.openai, compactionModel: normalizeCompactionModel(value) ?? DEFAULT_CODEX_CONVERSION_CONFIG.openai.compactionModel } };
 	if (id === "compactionReasoning") return { ...draft, openai: { ...draft.openai, compactionReasoning: normalizeCompactionReasoning(value) ?? DEFAULT_CODEX_CONVERSION_CONFIG.openai.compactionReasoning } };
 	if (id === "verbosity") return { ...draft, openai: { ...draft.openai, verbosity: normalizeCodexVerbosity(value) ?? DEFAULT_CODEX_CONVERSION_CONFIG.openai.verbosity } };
@@ -286,7 +262,7 @@ function normalizeProviderListFromText(value: string): string[] {
 
 function formatTabs(activeTab: SettingsTab, theme: Theme): string {
 	const renderTab = (tab: SettingsTab, label: string) => activeTab === tab ? theme.bold(label) : theme.fg("dim", label);
-	return `  ${renderTab("general", "General")}  ${theme.fg("dim", "/")}  ${renderTab("tools", "Tools")}  ${theme.fg("dim", "/")}  ${renderTab("openai", "OpenAI")}  ${theme.fg("dim", "/")}  ${renderTab("usage", "Usage")}  ${theme.fg("dim", "/")}  ${renderTab("about", "About")}`;
+	return `  ${renderTab("general", "General")}  ${theme.fg("dim", "/")}  ${renderTab("openai", "OpenAI")}  ${theme.fg("dim", "/")}  ${renderTab("usage", "Usage")}  ${theme.fg("dim", "/")}  ${renderTab("about", "About")}`;
 }
 
 function formatFooter(activeTab: SettingsTab): string {
